@@ -1,0 +1,1429 @@
+//翻訳ページ
+if( $('#translate-box').length ){
+  $('#translate-box .item').each(function(){
+    var name = $(this).find('.name').text().trim();
+    var code = $(this).find('.code').text().trim();
+    //console.log(name,code);
+    //$('#src-select').append('<option value="'+code+'">'+name+'</option>');
+    $('#target-select').append('<option value="'+code+'">'+name+'</option>');
+  });
+  $('#translate-box > ul').remove();
+}
+$('#translate-box .button button').on('click',function () {
+  var url = document.referrer;
+  if( url.length === 0 ) {
+    url = 'https://www.josai.ac.jp/';
+  }
+  var target = $('#target-select').val();
+  window.open('https://translate.google.com/translate?hl=&sl=ja&tl='+target+'&u='+url, '_blank');
+});
+
+/**** グローバル変数 ****/
+//ブレイクポイント
+var BRAKE_POINT_TB = 959; //タブレットサイズ
+var BRAKE_POINT_PC = 1279; //PCサイズ
+var BRAKE_POINT_TBLG = 1279; //PCラージサイズ
+//mainのサイズ
+var MAIN_SIZE_MAX = 1200; //maxレイアウトの場合
+var MAIN_SIZE = 880; //2層の場合
+
+var windowWidth = (window.innerWidth) ? window.innerWidth : document.body.clientWidth;
+$(window).on('load resize', function () {
+  windowWidth = (window.innerWidth) ? window.innerWidth : document.body.clientWidth;
+});
+
+/*--------------------------------------------
+  heightLine
+--------------------------------------------*/
+var runHeightLine = function(){
+  var heightLine_class = [
+    '.events-area .title',
+    
+    '.event-title',
+    '.index-box',
+    '.level2-index-head',
+    '.tab-menu ul li a',
+    '.edu-link-top-lists ul li a',
+    '.content-adjust',
+    '.content-top-nav-wrap-level4 .education-nav-level3 a',
+    '.education-index-box',
+    '.edu-index-daigaku-content',
+    '.edu-index-daigakuin-content',
+    '.education-nav-level3 > li a',
+    '.three-border-box-left',
+    '.three-border-box-bottom',
+    '.three-border-box',
+    '.image-include .news-list a',
+    '.color-wrapper',
+    '.teacher-intro-head',
+    '.sister-school-tabs li',
+    '.sister-school-tabs li .tab-cate-inner',
+    '.event-desc',
+    '.event-list',
+    '.report-date-text',
+    '.bottom-banner a',
+    '.gakubu-nav-list a',
+    '.teacher-intro-box',
+    '.education-course-box-title',
+    '.education-course-box-title-inner',
+    '.education-course-box-title-text',
+    '.education-three-title',
+    '.education-three-title-inner',
+    '.education-three-text',
+    '.cp-img-col2 .cp-h3-text',
+    '.link-wrap ul li a'
+  ];
+  var run = function(property,speed){
+    speed = speed || 300;
+    setTimeout(function(){
+      for(var i = 0; i <= heightLine_class.length -1; i++){
+        if($(heightLine_class[i]).length !== 0){
+          $(heightLine_class[i]).matchHeight({
+            property: 'height'
+          });
+        }
+      }
+    },speed);
+  };
+  $(window).on('load resize',function(){
+    run();
+  });
+  return{
+    refresh: function(speed){
+      speed = speed || 2000;
+      run('refresh', speed);
+    }
+  };
+}();
+
+//画像修正
+$('img').each(function(){
+  $(this).removeAttr('title');
+});
+//リンク修正
+$('a').each(function(){
+  var thisText = $(this).text();
+  var thisHref = $(this).attr('href');
+      thisHref = thisHref.replace('https://www.josai.ac.jp/_old/','https://www.josai.ac.jp/');
+      thisHref = thisHref.replace('https://www.josai.ac.jp/_admission/','https://www.josai.ac.jp/admission/');
+  $(this).attr('href',thisHref);
+  
+  var pattern = 'translate.google';
+  if( $(this).attr('target') === '_blank' && ~thisHref.indexOf(pattern) ){
+    thisHref = thisHref.substring(0,thisHref.indexOf("&usg"));
+    thisHref = thisHref.split('http');
+    thisHref = 'http'+thisHref[2];
+    $(this).attr('href',decodeURIComponent(thisHref));
+  }
+
+  var ua = navigator.userAgent;
+  if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0 || ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0) {
+  
+  }else{
+    //PCはTELリンクを削除
+    if( $(this).attr('href') !== undefined ){
+      if( $(this).attr('href').indexOf('tel:') === 0 ){
+        $(this).contents().unwrap();
+      }
+    }
+  }
+});
+
+//SP用に複製
+$('.header .logo').clone().prependTo('.gnav');
+$('.gnav .lv1 > .li2').clone().appendTo('.sp-top-nav .content .menu ul');
+$('.sp-top-nav .menu .visitor2').remove();
+$('.sp-top-nav .menu ul.lv2').remove();
+$('.pc-main-visual .admission-bnr').clone().appendTo('.sp-top-nav .content .menu');
+$('.header .sub-nav .bottom li').clone().appendTo('.sp-top-nav .content .visitor ul');
+$('.link-window .inner li').clone().appendTo('.sp-top-nav .content .link ul');
+$('.pc-main-visual .top-nav').clone().appendTo('.sp-top-nav');
+
+//header search
+$('.header .btn-area .search a').on('click',function () {
+  if( $(this).hasClass('active') ){
+    $(this).removeClass('active');
+    $('.search-window').removeClass('active');
+  }else{
+    $('.header .btn-area .link a').removeClass('active');
+    $('.link-window').removeClass('active');
+    
+    $(this).addClass('active');
+    $('.search-window').addClass('active');
+  }
+});
+
+//リンク再設定
+$('.banner-img-text').each(function(){
+  var thisUrl    = $(this).find('a').attr('href');
+  var thisTarget = $(this).find('a').attr('target');
+  if(thisTarget){
+    $(this).contents().wrapAll('<a href='+thisUrl+' target='+thisTarget+'></a>');
+  }else{
+    $(this).contents().wrapAll('<a href='+thisUrl+'></a>');
+  }
+  $(this).children('a').find('a').contents().unwrap();
+});
+
+$('.foot-col4-nav a').each(function(){
+  var thisUrl    = $(this).attr('href');
+  var thisTarget = $(this).attr('target');
+  if(thisTarget){
+    $(this).parent().parent().contents().wrapAll('<a href='+thisUrl+' target='+thisTarget+'></a>');
+  }else{
+    $(this).parent().parent().contents().wrapAll('<a href='+thisUrl+'></a>');
+  }
+  $(this).contents().unwrap();
+});
+
+//header link
+$('.header .btn-area .link a').on('click',function () {
+  if( $(this).hasClass('active') ){
+    $(this).removeClass('active');
+    $('.link-window').removeClass('active');
+  }else{
+    $('.header .btn-area .search a').removeClass('active');
+    $('.search-window').removeClass('active');
+    
+    $(this).addClass('active');
+    $('.link-window').addClass('active');
+  }
+});
+
+/*====================================
+要素をまとめてclearfixで囲む
+====================================*/
+var wrapClear = function (){
+  var elementClear = [
+    '.color-wrapper','.teacher-intro-box'
+  ]; //<div class="clearfix"></div>で囲みたい要素を入れる
+  
+  for(var i = 0; i <= elementClear.length -1; i++){  
+    if($(elementClear[i]).length != 0){
+      $(elementClear[i]).wrapAll('<div class="clearfix"></div>');
+    }
+  }
+}();
+
+/*ニュース詳細前に戻る*/
+(function(){
+  $('.news-detail-back').on('click', function(event) {
+    event.preventDefault();
+    history.back();
+  });
+})();
+
+/*indexページ　indexを囲む処理*/
+var indexBox = function(){
+  if($('body').hasClass('level2')){
+    var indexNum = 0;
+    var boxCount = 0;
+    var element = '';
+   $('.index-box').each(function(i){
+      var classCheck = $(this).attr('class');
+      var indexCheck = classCheck.replace('index-box clearfix','').trim();
+      var indexHtml =  $(this).html();
+      var indexHtmlWrap = '<div class="'+classCheck+'">'+indexHtml+'</div>';
+      var thisClass = 'index-wrap'+i;
+      if(indexNum == 0){
+        $(this).before('<div class="index-wrap clearfix">');
+      }
+
+      if(indexCheck == 'level2-index-max'){
+        indexNum = indexNum + 100;
+      }
+
+      if(indexCheck == 'level2-index-harf'){
+        indexNum = indexNum + 50;
+      }
+      
+      if(indexCheck == 'level2-index-quarter'){
+        indexNum = indexNum + 25;
+      }
+      
+      element = indexHtmlWrap;
+      $('.index-wrap').eq(boxCount).append(element);
+      $(this).remove();
+      if(indexNum == 100){
+        indexNum = 0;
+        element = '';
+        boxCount = boxCount + 1;
+      }
+   });
+   $('.index-wrap').each(function(){
+     var thisChild = $(this).children('div');
+     var quarterIndex = $(this).find('.level2-index-quarter').length;
+     if(thisChild.length < 2){
+       thisChild.css('float','left');
+     }
+     if(thisChild.hasClass('level2-index-max') ){
+       thisChild.css('float','none');
+     }
+     if(quarterIndex == 4) {
+       $(this).find('.level2-index-quarter').eq(1).addClass('quarter-second');
+     }
+   });
+  }
+}();
+
+/*リンクタブ*/
+var linkTab = function(){
+  if($('.link-tab').length > 0){
+    var nowUrl = location.href;
+    var nowQuery = location.search;
+    var freshUrl = nowUrl.replace(nowQuery,'');
+    $('.link-tab li').each(function(){
+      var thisUrl = $(this).find('a').attr('href');
+      if(freshUrl === thisUrl){
+        $(this).addClass('active');
+      }
+    });
+  }
+}();
+
+/*開閉式*/
+var commonKaihei = function(){
+  if($('.kaihei-wrap').length > 0){
+    $('.kaihei-wrap .kaihei-head').click(function(){
+      var $thisActive = $(this).parent();
+      if(!$thisActive.hasClass('active')){
+        $thisActive.addClass('active');
+        $(this).next().slideDown(200);
+        blockTextImageSize2();
+      }else {
+        $thisActive.removeClass('active');
+        $(this).next().slideUp(200);
+      }
+    });
+  }
+  var counter = 0;
+  $(".acd-unit-head a").click(function(){
+    var target = $(".acd-unit-head a");
+    if( $(this).parent().hasClass('close') ){
+      $(this).parent().removeClass('close');
+    }else{
+      counter++;
+    }
+    switch( counter ){
+      case 1:
+        target.html('全てを閉じる<span class="plus-btn"><span></span><span></span></span>');
+        target.parent().addClass('active');
+        $('.kaihei-wrap').addClass('active');
+        $('.kaihei-inner').slideDown(200);
+        break;
+      default:
+        counter = 0;
+        target.html('全てを表示する<span class="plus-btn"><span></span><span></span></span>').removeClass('active');
+        target.parent().removeClass('active');
+        $('.kaihei-wrap').removeClass('active');
+        $('.kaihei-inner').slideUp(200);
+        break;
+    }
+  });
+}();
+
+/*機器名一覧*/
+var kikiIndex = function(){
+  if($('.kiki-index-wrap').length > 0){
+    var $thisContent = $('.activeNav .education-nav-level3 .education-list-first .education-nav-level4').clone();
+    $('.kiki-index-content').append($thisContent);
+    $('.kiki-index-head').click(function(){
+      if(!$(this).hasClass('active')){
+        $(this).addClass('active');
+        $(this).next().slideDown();
+      }else {
+        $(this).next().slideUp();
+        $(this).removeClass('active');
+      }
+    });
+    
+  }
+}();
+
+/*枠線三段組み*/
+var threeBorderBox = function(){
+  if($('.three-border-box').length > 0){
+    $('.three-border-box').wrapAll('<div class="three-border-wrap clearfix">');
+  }
+}();
+
+/*短大インデックス画像４段組　自動でalt入れる*/
+var collegeIndex = function(){
+  if($('.education-index-box-max').length > 0){
+    $('.education-index-box-max .education-index-thum img').each(function(){
+      var thisAlt = $(this).attr('alt');
+      if(thisAlt){
+        $(this).after('<span>'+thisAlt+'</span>');
+      }
+    });
+  }
+}();
+
+/*ニュース一覧フィルター*/
+var newsSelect = function(){
+  if($('#news_select_wrap').length > 0){
+    var nowQuery = location.search;
+    var textTrim = nowQuery.split('=')[2];
+    var thisQuerySecond =  nowQuery.split('=')[1];
+    var thisCat2 = $('.news-select2-lists a').attr('href');
+    $('#sortCat > label > select').attr('id',thisCat2);
+    $('.news-select3-lists li').each(function(){
+      var thisText = $(this).text().trim();
+      var thisId = $(this).find('a').attr('href');
+      $('#sortCat > label > select').append('<option value="'+thisId+'">'+thisText+'</option>');
+    });
+    if(textTrim != '='){
+      $('#sortCat > label > select').val(textTrim);
+    }
+    if(thisQuerySecond == '&c2'){
+      $('#sortCat > label > select').val('c2='+textTrim);
+    }
+    
+  $('#sortCat > label > select').change(function(){
+    var thisSelect = $('#sortCat > label > select option:selected').val(),
+        thisSplit = thisSelect.split('='),
+        thisUrl = window.location.href,
+        thisQuery,
+        searchUrl;
+    if(thisSplit.length > 1) {
+      thisQuery = '?y=&c2=' + thisSplit[1];
+    }else {
+    thisQuery = '?y=&c3=' + thisSplit[0];
+    }
+    thisUrl = thisUrl.split('?')[0];
+    searchUrl = thisUrl + thisQuery;
+    location.href = searchUrl;
+  });
+    
+  }
+}();
+
+
+/*タブ*/
+
+var commonTabs = function(){
+  if($('.tab-wrap').length > 0){
+    $('.tab-wrap').each(function(){
+      var $tab = $(this).find('.tab-menu li,.tab-wrap-menu li'),
+          $tabAnchor = $tab.find('a'),
+          tabNum,
+          $tabList = $(this).find('.tab-content').find('.tab-lists');
+      $tab.eq(0).addClass('active');
+      $tabAnchor.click(function(){
+        if(!$(this).parent().hasClass('active')){
+          $tab.removeClass('active');
+          $tabList.hide();
+          $(this).parent().addClass('active');
+          tabNum = $(this).parent().index();
+          $tabList.eq(tabNum).show();
+          runHeightLine.refresh();
+          return false;
+        }
+        return false;
+      });
+    });
+  }
+}();
+
+/*城西短期　最新イベント*/
+var comingEvent = function(){
+  if($('#comingEventdata').length > 0) {
+    var listIndex,
+        thisDay = [];
+    $('.coming-event-list').each(function(listIndex){
+      var thisDate = $(this).find('.coming-event-date').text().trim().match(/\d/g).join("")
+      $(this).addClass(thisDate);
+      thisDay[listIndex] = thisDate;
+    });
+    var dayUNi = thisDay.filter(function (x, i, self) {
+      return self.indexOf(x) === i;
+    });
+    var dayIndex,
+        element;
+    for(var i = 0; i < dayUNi.length; i++){
+      $('.'+dayUNi[i]).each(function(dayIndex){
+        if(dayIndex == 0){
+          $('.coming-event-box').append('<div class="coming-event-lists"></div>');
+        }
+        element = '<div class="coming-event-list clearfix">'+$(this).html();+'</div>';
+        $('.coming-event-box .coming-event-lists').eq(i).append(element);
+        $(this).remove();
+      });
+    }
+    $('.coming-event-lists').each(function(){
+      var firstList = $(this).find('.coming-event-list').eq(0).find('.coming-event-date').text().trim();
+      $(this).prepend('<div class="coming-event-head education-border-color education-text-color">'+firstList+'</div>')
+    });
+  }
+}();
+
+/*画像拡大*/
+var imgBig = function(){
+  if($('.img-bigger-wrap').length > 0){
+    $('.img-bigger-wrap img').each(function(i){
+      $(this).addClass('imgNum'+i);
+    });
+    /*開始処理*/
+    $('.img-bigger-wrap img').click(function(){
+     $('body').append('<div id="imgBiggger"><div class="inner"><div class="imgBiggger-content"><div class="imgBiggger-inner"><p></p><div class="img-bigger-img-wrap"><div class="img-bigger-img"></div></div></div><div class="img-bigger-slide-left bigger-arrow"></div><div class="img-bigger-slide-right bigger-arrow"></div></div></div><div class="img-bigger-outer"></div></div>');
+     $('#imgBiggger .img-bigger-outer').slideDown(function(){
+       $('.imgBiggger-content').fadeIn();
+     });
+      var $this = $(this).clone();
+      var thisAlt = $(this).attr('alt');
+      var thisScroll = $(window).scrollTop();
+      $('.img-bigger-img').append($this);
+      $('.imgBiggger-inner p').text(thisAlt);
+      $('#imgBiggger').css('top',thisScroll);
+      /*継続処理*/
+      $('.bigger-arrow').click(function(){
+        var thisClass = $('.img-bigger-img img').attr('class');
+        var thisNum = thisClass.replace('imgNum','');
+        var numParseInt = parseInt(thisNum);
+        var nextNum;
+        if($(this).hasClass('img-bigger-slide-left')){
+          nextNum = numParseInt - 1;
+        }else {
+          nextNum = numParseInt + 1;
+        }
+        var nextImgClass = '.imgNum'+ nextNum;
+        var nextImg = $(nextImgClass).clone();
+        var nextImgAlt = $(nextImg).attr('alt');
+        if($(nextImg).length > 0){
+          $('.img-bigger-img img').fadeOut(function(){
+            $('.imgBiggger-inner p').text(nextImgAlt);
+            $('.img-bigger-img').append(nextImg).fadeIn();
+          }).remove();
+        }else {
+          biggerStop();
+        }
+      });
+       /*終了処理*/
+       $('.img-bigger-outer').click(function(){
+          biggerStop();
+       });
+       function biggerStop(){
+         $('.imgBiggger-content').fadeOut(function(){
+           $('.img-bigger-outer').slideUp(function(){
+              $('#imgBiggger').remove();
+           });
+         });
+       }
+    });
+  }
+}();
+
+/*姉妹校フィルター処理*/
+var sisterFilter = function(){
+if($('.sister-school-box').length > 0){
+ /* 姉妹校ボックス_カテゴリー表示 */
+  $('.sister-school-box').each(function(){
+    var thisCat = $(this).find('.sister-school-tags').text().trim();
+    var thisSplit = thisCat.split(',');
+    var thisSplitLength = thisSplit.length;
+    for(var i = 0; i < thisSplitLength; i++){
+      /*.sister-school-tagsの中に入っている単語に応じてカテゴリーを表示する*/
+      switch(thisSplit[i]){
+        case '留学' : $(this).find('.sister-school-cate .tab-study').css('display','inline-block'); break;
+        case 'スプリングセミナー' : $(this).find('.sister-school-cate .tab-spring').css('display','inline-block'); break;
+        case '交換留学' : $(this).find('.sister-school-cate .tab-exchange').css('display','inline-block'); break;
+        case 'サマーセミナー' : $(this).find('.sister-school-cate .tab-summer').css('display','inline-block'); break;
+      }
+    }
+  });
+  /*タブクリックで実行*/
+  $('.sister-school-tabs li').click(function(){
+    /*active判定*/
+    if(!$(this).hasClass('active')){
+      if($(this).hasClass('tab-all')){
+        /*初期化　先生ボックス消してリストのアクティブを消す*/
+        $('.sister-school-box').hide();
+        $('.sister-school-tabs li').removeClass('active');
+        /*リストにアクティブ*/
+        $(this).addClass('active');
+        $('.sister-school-box').show();
+      } else {
+        var thisText = $(this).find('.tab-cate').text().trim();
+        /*初期化　先生ボックス消してリストのアクティブを消す*/
+        $('.sister-school-box').hide();
+        $('.sister-school-tabs li').removeClass('active');
+        /*リストにアクティブ*/
+        $(this).addClass('active');
+        $('.sister-school-box').each(function(){
+          /*sister-school-boxのsister-school-tags*/
+          var thisCat = $(this).find('.sister-school-tags').text().trim();
+           /*コンマ区切り*/
+          var thisSplit = thisCat.split(',');
+          /*コンマで区切られたタグの数を調べる*/
+          var thisSplitLength = thisSplit.length;
+          /*タグの数だけチェックを実行*/
+          for(var i = 0; i < thisSplitLength; i++){
+            /*テキストが合致していたら先生ボックスを表示*/
+            if(thisText == thisSplit[i]){
+              $(this).show();
+            }
+          }
+        });
+      }
+    }
+  });
+}
+}();
+
+//大学院入試ページアンカー＆開閉処理
+  $(window).on("load", function(){
+    var url   = location.hash;
+    if(url == "#keizaigaku"){
+      $('#keizaigaku').parents('.kaihei-wrap').addClass('active').find('.kaihei-inner').slideDown();
+    }
+    if(url == "#keieigaku"){
+      $('#keieigaku').parents('.kaihei-wrap').addClass('active').find('.kaihei-inner').slideDown();
+    }
+    if(url == "#rigaku_suugaku"){
+      $('#rigaku_suugaku').parents('.kaihei-wrap').addClass('active').find('.kaihei-inner').slideDown();
+    }
+    if(url == "#rigaku_bussitu"){
+      $('#rigaku_bussitu').parents('.kaihei-wrap').addClass('active').find('.kaihei-inner').slideDown();
+    }
+    if(url == "#yakugaku"){
+      $('#yakugaku').parents('.kaihei-wrap').addClass('active').find('.kaihei-inner').slideDown();
+    }
+    var $target = $(url);
+    if($target.length){
+      var pos = $target.offset().top;
+      $("html, body").animate({scrollTop:pos}, 1500);
+    }
+  });
+
+//megadrop
+$('.gnav .lv1 > li').each(function(){
+  var thisClass = $(this).attr('class');
+  thisClass = thisClass.split(' ');
+  $('.megadrop-wrap > .'+thisClass[2]+' .inner').append( $(this).html() );
+});
+$('.megadrop-wrap > div').each(function(){
+  $(this).find('.lv2').children().eq(0).remove();
+  var headLength = $(this).find('.lv2').children().length;
+  var listFlag = Math.floor( headLength / 4 );
+  var listFlagP = headLength % 4;
+  var sliceN = 0;
+  var sliceM = listFlag;
+  for(var i = 0; i < 4; i++){
+    if(listFlagP===0){
+      listFlagP--;
+    }else{
+      sliceM++;
+      listFlagP--;
+    }
+    if( $(this).hasClass('about2') ){
+      $(this).find('.lv2').children().slice(sliceN,sliceM+2).wrapAll('<li class="mega-list"><ul></ul></li>');
+    }else{    
+      $(this).find('.lv2').children().slice(sliceN,sliceM).wrapAll('<li class="mega-list"><ul></ul></li>');
+    }
+    sliceN++;
+  }
+});
+$('.mega-list .lv3 > li > a').each(function(){
+  var firstText = $(this).text();
+  var headText  = $(this).parent().parent().prev('a').text();
+  if( firstText === headText || firstText === "学習支援・学生生活" || firstText === "就職支援・進路" ){
+    $(this).parent().remove();
+  }
+});
+$('.megadrop-wrap .about2').find('.mega-list:eq(2)').children('ul').children('li:last-child').insertAfter('.megadrop-wrap .about2 .mega-list:eq(2)').wrap('<li class="mega-list"><ul></ul></li>');
+$('.mega-list > ul > li').each(function(){
+  if( $(this).children('ul').length ){
+    $(this).children('a').prepend('<span class="mega-btn"></span>');
+  }
+});
+$('.mega-list .mega-btn').click(function () {
+  if( $(this).parent().hasClass('mega-btn-active') ){
+    $(this).parent('a').removeClass('mega-btn-active');
+    $(this).parent('a').next('ul').slideUp(200);
+    return false;
+  }else{
+    $(this).parent('a').addClass('mega-btn-active');
+    $(this).parent('a').next('ul').slideDown(200);
+    return false;
+  }
+});
+
+var sethover;
+$('.gnav .lv1 > li > a').on('touchstart, mouseenter',function(){
+  var thisClass = $(this).parent().attr('class').trim();
+  thisClass = thisClass.split(' ');
+  sethover = setTimeout(function(){    
+    $('.gnav .lv1 > li > a').removeClass('active');
+    $('.megadrop-wrap > div').removeClass('active');
+    $('.gnav .lv1 > .'+thisClass[2]+' > a').addClass('active');
+    $('.megadrop-wrap > .'+thisClass[2]).addClass('active');
+  },200);
+}).on('touchend, mouseleave',function(){
+  clearTimeout(sethover);
+  $('.header,.contents,.pc-main-visual,.under-main-visual,main-visual,.title-wrap').on('touchstart, mouseenter',function(){
+    $('.gnav .lv1 > li > a').removeClass('active');
+    $('.megadrop-wrap > div').removeClass('active');
+  });
+  $('.megadrop-wrap').on('touchend, mouseleave',function(){
+    $('.gnav > ul > li > a').removeClass('active');
+    $('.megadrop-wrap > div').removeClass('active');
+  });
+});
+
+//ニュース絞り込みテキスト変更
+$('#sortyear').find('option').eq(0).text('全ての年度');
+
+var bodyClass    = $('body').attr('class');
+    bodyClass    = bodyClass.split(' ');
+    bodyClass[0] = "home1";
+
+//active追加
+$('.gnav .lv0 a').each(function(){
+  var thisThis = $(this); 
+  var thisClass = $(this).parent().attr('class');
+      thisClass = thisClass.split(' ');
+      
+  var thisUrl        = $(this).attr('href');
+  var thisUrlNoIndex = thisUrl.replace('index.html','');
+  var nowUrl         = location.href;
+      nowUrl         = nowUrl.split('#');
+  var nowPage        = location.href;
+      nowPage        = nowPage.split('#');
+      nowPage        = nowPage[nowPage.length - 1].split('/');
+      nowPage        = nowPage[nowPage.length - 1];
+      nowPage        = nowPage.replace('.html','');
+      nowPage        = 'page-'+nowPage;
+  //$.each(bodyClass, function(index, value) {
+  //  if( value === nowPage ){
+      $.each(bodyClass, function(index, value) {
+        if( value === thisClass[thisClass.length - 1] && ( thisUrl === nowUrl[0] || thisUrlNoIndex === nowUrl[0] ) ){
+          $(thisThis).addClass('gnav-active');
+          $(thisThis).parents('li').addClass('gnav-active');
+          $(thisThis).parents('li').children('a').addClass('gnav-active');
+        }
+      });
+  //  }
+  //});
+});
+
+//グローバルナビ
+$('.gnav .lv1 a').each(function (){
+  if( $(this).next().length ){
+    $(this).addClass('head').append('<span class="button"></span>');
+  }
+});
+$('.gnav ul > li:eq(0) a').each(function(){
+  var firstText = $(this).text();
+  var headText  = $(this).parent().parent().prev('a').text();
+  if( firstText === headText || firstText === "学習支援・学生生活" || firstText === "就職支援・進路" ){
+    $(this).parent().remove();
+  }
+});
+$('.gnav-btn a').on('click',function () {
+  if( $(this).hasClass('active') ){
+    $(this).removeClass('active');
+    $('.gnav').removeClass('active');
+    $('.gnav .lv1 ul').css('display','none');
+    $('.gnav .lv1 ul').removeClass('active-nav');
+    $('.gnav .lv1 a').removeClass('active-nav');
+    preventScroll.disable();
+  }else{
+    $(this).addClass('active');
+    $('.gnav').addClass('active');
+    $('.local-nav').removeClass('active');
+    $('.local-nav-btn a').removeClass('active');
+    preventScroll.enable();
+  }
+});
+
+$('.sp-foot-nav .search a').on('click',function () {
+  if( $(this).hasClass('active') ){
+    $(this).removeClass('active');
+    $('.search-window').removeClass('active');
+  }else{
+    $(this).addClass('active');
+    $('.search-window').addClass('active');
+  }
+});
+
+$('.gnav .button').click(function () {
+  if( windowWidth > BRAKE_POINT_TB && !$('body').hasClass('scroll') ){
+
+  }else{
+    if( $(this).parent().hasClass('active-nav') ){
+      $(this).parent('a').removeClass('active-nav');
+      $(this).parent('a').next().addClass('removeClass').slideUp(200);
+      return false;
+    }else{
+      $(this).parent('a').addClass('active-nav');
+      $(this).parent('a').next().addClass('active-nav').slideDown(200);
+      return false;
+    }
+  }
+});
+
+//ローカルナビ
+//PC
+if( $('.right-content').length){
+  if(
+      $('body').hasClass('mathematics_dep4') ||
+      $('body').hasClass('chemistry_dep4') ||
+      $('body').hasClass('pharm6_dep4') ||
+      $('body').hasClass('pharm4_dep4') ||
+      $('body').hasClass('nutrition_dep4') ||
+      $('body').hasClass('women4') ||
+      $('body').hasClass('analysis4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('en4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('chi4')
+  ){
+    $('.gnav .'+bodyClass[3]+':eq(0)').clone().appendTo('.right-content .inner');
+  }else if(
+      $('body').hasClass('economics3') ||
+      $('body').hasClass('modernpolicy3') ||
+      $('body').hasClass('management3') ||
+      $('body').hasClass('science3') ||
+      $('body').hasClass('pharmacy3') ||
+      $('body').hasClass('gra_economics3') ||
+      $('body').hasClass('gra_management3') ||
+      $('body').hasClass('gra_science3') ||
+      $('body').hasClass('gra_pharmacy3') ||
+      $('body').hasClass('bekka3') ||
+      $('body').hasClass('college3') ||
+      $('body').hasClass('lang_education3') ||
+      $('body').hasClass('teacher_training3') ||
+      $('body').hasClass('mathematical_datascience3') ||
+      $('body').hasClass('inforesearch3') ||
+      $('body').hasClass('citizen3') ||
+      $('body').hasClass('kodomo_univ3') ||
+      $('body').hasClass('parents3') ||
+      $('body').hasClass('foreign-students-new3')
+  ){
+    $('.gnav .'+bodyClass[2]+':eq(0)').clone().appendTo('.right-content .inner');
+  }else{
+    $('.gnav .'+bodyClass[1]+':eq(0)').clone().appendTo('.right-content .inner');
+  }
+  $('.right-content ul > li:eq(0) a').each(function(){
+    var firstText = $(this).text();
+    var headText  = $(this).parent().parent().prev('a').text();
+    if( firstText === headText || firstText === "学習支援・学生生活" || firstText === "就職支援・進路" ){
+      $(this).parent().remove();
+    }
+  });
+  $('.right-content ul:empty').prev('a').children('.button').remove();
+  $('.right-content ul:empty').prev('a').removeClass('nav-active');
+  $('.right-content ul:empty').remove();
+}
+$('.right-content .button').click(function () {
+  if( $(this).parent().hasClass('active-nav') || $(this).parent().hasClass('gnav-active') ){
+    $(this).parent('a').removeClass('active-nav').removeClass('gnav-active');
+    $(this).parent('a').next().addClass('active-nav').removeClass('gnav-active').slideUp(200);
+    return false;
+  }else{
+    $(this).parent('a').addClass('active-nav');
+    $(this).parent('a').next().addClass('active-nav').slideDown(200);
+    return false;
+  }
+});
+//SP
+if( $('.local-nav').length){
+  if(
+      $('body').hasClass('mathematics_dep4') ||
+      $('body').hasClass('chemistry_dep4') ||
+      $('body').hasClass('pharm6_dep4') ||
+      $('body').hasClass('pharm4_dep4') ||
+      $('body').hasClass('nutrition_dep4') ||
+      $('body').hasClass('women4') ||
+      $('body').hasClass('analysis4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('en4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('chi4')
+  ){
+    $('.gnav .'+bodyClass[3]+':eq(0)').clone().appendTo('.local-nav .inner');
+  }else if(
+      $('body').hasClass('economics3') ||
+      $('body').hasClass('modernpolicy3') ||
+      $('body').hasClass('management3') ||
+      $('body').hasClass('science3') ||
+      $('body').hasClass('pharmacy3') ||
+      $('body').hasClass('gra_economics3') ||
+      $('body').hasClass('gra_management3') ||
+      $('body').hasClass('gra_science3') ||
+      $('body').hasClass('gra_pharmacy3') ||
+      $('body').hasClass('bekka3') ||
+      $('body').hasClass('college3') ||
+      $('body').hasClass('lang_education3') ||
+      $('body').hasClass('teacher_training3') ||
+      $('body').hasClass('mathematical_datascience3') ||
+      $('body').hasClass('inforesearch3') ||
+      $('body').hasClass('citizen3') ||
+      $('body').hasClass('kodomo_univ3') ||
+      $('body').hasClass('parents3') ||
+      $('body').hasClass('foreign-students-new3')
+  ){
+    $('.gnav .'+bodyClass[2]+':eq(0)').clone().appendTo('.local-nav .inner');
+  }else{
+    $('.gnav .'+bodyClass[1]+':eq(0)').clone().appendTo('.local-nav .inner');
+  }
+  $('.local-nav ul > li:eq(0) a').each(function(){
+    var firstText = $(this).text();
+    var headText  = $(this).parent().parent().prev('a').text();
+    if( firstText === headText || firstText === "学習支援・学生生活" || firstText === "就職支援・進路" ){
+      $(this).parent().remove();
+    }
+  });
+  $('.local-nav ul:empty').prev('a').children('.button').remove();
+  $('.local-nav ul:empty').prev('a').removeClass('nav-active');
+  $('.local-nav ul:empty').remove();
+}
+$('.local-nav .button').click(function () {
+  if( windowWidth > BRAKE_POINT_TB ){
+
+  }else{
+    if( $(this).parent().hasClass('active-nav') ){
+      $(this).parent('a').removeClass('active-nav');
+      $(this).parent('a').next().addClass('active-nav').slideUp(200);
+      return false;
+    }else{
+      $(this).parent('a').addClass('active-nav');
+      $(this).parent('a').next().addClass('active-nav').slideDown(200);
+      return false;
+    }
+  }
+});
+
+//INDEXメニュー
+if( $('.index-nav').length){
+  if(
+      $('body').hasClass('mathematics_dep4') ||
+      $('body').hasClass('chemistry_dep4') ||
+      $('body').hasClass('pharm6_dep4') ||
+      $('body').hasClass('pharm4_dep4') ||
+      $('body').hasClass('nutrition_dep4') ||
+      $('body').hasClass('women4') ||
+      $('body').hasClass('analysis4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('en4')||
+      $('body').hasClass('bekka3') &&$('body').hasClass('chi4')
+  ){
+    $('.gnav .'+bodyClass[3]+':eq(0) > ul').contents().clone().appendTo('.index-nav .inner');
+  }else if(
+      $('body').hasClass('economics3') ||
+      $('body').hasClass('modernpolicy3') ||
+      $('body').hasClass('management3') ||
+      $('body').hasClass('science3') ||
+      $('body').hasClass('pharmacy3') ||
+      $('body').hasClass('gra_economics3') ||
+      $('body').hasClass('gra_management3') ||
+      $('body').hasClass('gra_science3') ||
+      $('body').hasClass('gra_pharmacy3') ||
+      $('body').hasClass('bekka3') ||
+      $('body').hasClass('college3') ||
+      $('body').hasClass('lang_education3') ||
+      $('body').hasClass('teacher_training3') ||
+      $('body').hasClass('mathematical_datascience3') ||
+      $('body').hasClass('inforesearch3') ||
+      $('body').hasClass('citizen3') ||
+      $('body').hasClass('kodomo_univ3') ||
+      $('body').hasClass('student3') ||
+      $('body').hasClass('parents3') ||
+      $('body').hasClass('foreign-students-new3')
+  ){
+    $('.gnav .'+bodyClass[2]+':eq(0) > ul').contents().clone().appendTo('.index-nav .inner');
+  }else{
+    $('.gnav .'+bodyClass[1]+':eq(0) > ul').contents().clone().appendTo('.index-nav .inner');
+  }
+  $('.index-nav ul > li:eq(0) a').each(function(){
+    var firstText = $(this).text();
+    var headText  = $(this).parent().parent().prev('a').text();
+    if( firstText === headText || firstText === "学習支援・学生生活" || firstText === "就職支援・進路" ){
+      $(this).parent().remove();
+    }
+  });
+  //$('.index-nav ul:empty').prev('a').children('.button').remove();
+  //$('.index-nav ul:empty').prev('a').removeClass('nav-active');
+  //$('.index-nav ul:empty').remove();
+  $('.index-nav > .inner > li > ul > li > ul > li > a').removeClass('head');
+  $('.index-nav > .inner > li > ul > li > ul > li > ul').remove();
+}
+$('.index-nav .button').click(function () {
+  if( $(this).parent().hasClass('active-nav') ){
+    $(this).parent('a').removeClass('active-nav');
+    $(this).parent('a').next().addClass('active-nav').slideUp(200);
+    return false;
+  }else{
+    $(this).parent('a').addClass('active-nav');
+    $(this).parent('a').next().addClass('active-nav').slideDown(200);
+    return false;
+  }
+});
+
+//スクロール時
+var windowWidth = (window.innerWidth) ? window.innerWidth : document.body.clientWidth;
+$(window).on('scroll', function(){
+  //アニメーション
+  var windowHeight = $(window).height(),
+      topWindow = $(window).scrollTop();
+
+  //クラスを追加・削除
+  if ($(window).scrollTop() > 160) {
+    $('.pagetop').addClass('scroll');
+  } else {
+    $('.pagetop').removeClass('scroll');
+  }
+});
+
+//TOPに戻る
+(function () {
+  $('.pagetop a').on('click', function () {
+    $('body,html').animate({
+      scrollTop: 0
+    }, 400);
+    return false;
+  });
+})();
+
+//タブリンク
+var nowHref = location.pathname;
+$(".tabLink").each(function(i){
+  $(".tabLink:eq("+i+") > ul li a").each(function(){
+    var tabLinkHref = $(this).attr("href");
+    tabLinkHref = tabLinkHref.replace( /index.html/g, "" );
+    var randamStr = Math.random().toString(36).slice(-8);
+    var str = tabLinkHref + randamStr;
+    if (str.indexOf(nowHref + randamStr) !== -1) {
+      $(this).addClass("active").attr("href","javascript:void(0)");
+    }
+  });
+  $(".tabLink:eq("+i+") .toggle").on('click', function(){
+    var windowWidth = (window.innerWidth) ? window.innerWidth : document.body.clientWidth;
+    if(windowWidth > BRAKE_POINT_TB){}else{
+      $(this).toggleClass('active');
+      $(this).next().slideToggle(200).toggleClass('active');
+    }
+  });
+  $(window).on('load resize', tabLinkWidthChange);
+  function tabLinkWidthChange(){
+    var windowWidth = (window.innerWidth) ? window.innerWidth : document.body.clientWidth;
+    if(windowWidth > BRAKE_POINT_TB){
+      $(".tabLink:eq("+i+") .toggle").hide();
+      $(".tabLink:eq("+i+") > ul").css('display','flex');
+    }else{
+      $(".tabLink:eq("+i+") .toggle").css('display','block').removeClass('active');
+      $(".tabLink:eq("+i+") > ul").hide();
+    }
+  }
+});
+
+//タブメニュー
+$(function () {
+  $(".tabMenu").each(function(i){
+    var indexNum = 0;
+    $(".tabMenu:eq("+i+") > ul > li").eq(0).addClass('active');
+    $(".tabMenu:eq("+i+") .content > div").hide();
+    $(".tabMenu:eq("+i+") .content > div").eq(0).show().addClass('active');
+    $(".tabMenu:eq("+i+") > ul > li").on('click', function(){
+      $(".tabMenu:eq("+i+") > ul > li").removeClass('active');
+      indexNum = $(".tabMenu:eq("+i+") > ul > li").index(this);
+      $(".tabMenu:eq("+i+") .content > div").hide().removeClass("active");
+      $(".tabMenu:eq("+i+") .content > div").eq(indexNum).show().addClass("active");
+      $(this).addClass('active');
+    });
+    function tabMenuWidthChange(){
+      var hash = location.hash;
+      var tabno;
+
+      $(".tabMenu:eq("+i+") .toggle").hide();
+      $(".tabMenu:eq("+i+") > ul").css('display','table');
+      $(".tabMenu:eq("+i+") .content > div").hide();
+      $(".tabMenu:eq("+i+") .content > div").eq(indexNum).show();
+      
+      var tabname;
+      if(hash){
+        tabname = hash.replace(/[#]/g, '');
+        try{
+          tabname = decodeURI( tabname );
+        }catch(e){}
+      }
+      for (var j=0; j<$('.tabMenu:eq('+i+') > ul > li').length; j++) {
+        var nowText = $('.tabMenu:eq('+i+') > ul > li').eq(j).text();
+        nowText = jQuery.trim(nowText);
+        nowText = nowText.replace(/[ ]/g, '_');
+        if( nowText === tabname ){
+          tabno = j;
+        }
+      }
+      if(tabno || tabno === 0){
+        $('.tabMenu:eq('+i+') > ul > li').removeClass('active');
+        $('.tabMenu:eq('+i+') > ul > li').eq(tabno).addClass('active');
+        $('.tabMenu:eq('+i+') .content > div').hide().removeClass('active');
+        $('.tabMenu:eq('+i+') .content > div').eq(tabno).show().addClass('active');
+        $('body,html').animate({
+          scrollTop: 0
+        }, 0);
+      }
+    }
+  });
+});
+
+//重要なお知らせが1件以上ある場合
+if( $('.important-news-area li').length ){
+  $('.important-news-area').css('display','flex');
+}
+if( !$('.news-area .sub li').length ){
+  $('.news-area').addClass('no-sub');
+  $('.news-area .sub').css('display','none');
+}
+
+//TOP slider
+if( windowWidth > BRAKE_POINT_TB && $('.pc-main-visual').length ){
+  $('.pc-main-visual > ul').slick({
+    autoplay: true,
+    autoplaySpeed: 4000,
+    speed: 2000,
+    infinite: true,
+    dots: false,
+    arrows: false,
+    pauseOnHover: false,
+    swipe: false,
+  });
+  $('.pc-main-visual .top-nav .item').on('touchstart, mouseenter',function () {
+    $('.pc-main-visual .top-nav .item').removeClass('active');
+    $('.pc-main-visual .top-nav .item ul').slideUp(200);
+    $(this).addClass('active');
+    $(this).children('ul').slideDown(200);
+  }).on('touchend, mouseleave',function () {
+    $(this).removeClass('active');
+    $(this).children('ul').slideUp(200);
+  });
+}else{
+  $('.pc-main-visual > ul > li:not(:first)').remove();
+}
+
+//events slider
+if( $('.events-area').length ){
+  $('.events-area ul').slick({
+    autoplay: false,
+    autoplaySpeed: 3000,
+    speed: 1000,
+    infinite: true,
+    slidesToShow: 5,
+    dots: false,
+    arrows: true,
+    responsive: [
+      {
+        breakpoint: 1770,
+        settings: {
+          slidesToShow: 4
+        }
+      },
+      {
+        breakpoint: 1404,
+        settings: {
+          slidesToShow: 3,
+        }
+      },
+      {
+        breakpoint: 1038,
+        settings: {
+          slidesToShow: 2,
+        }
+      },
+      {
+        breakpoint: 959,
+        settings: {
+          slidesToShow: 1,
+        }
+      }
+    ]
+  });
+}
+
+//sp top nav
+var spMenuHeight = $('.sp-top-nav .content .menu').height();
+var spVisitorHeight = $('.sp-top-nav .content .visitor').height();
+if( spMenuHeight > spVisitorHeight){
+  $('.sp-top-nav .content .menu,.sp-top-nav .content .visitor').css('min-height',spMenuHeight);
+}else{
+  $('.sp-top-nav .content .menu,.sp-top-nav .content .visitor').css('min-height',spVisitorHeight);
+}
+
+$('.sp-top-nav .tab-nav li').on('click', function () {
+  indexNum = $('.sp-top-nav .tab-nav li').index(this);
+  $('.sp-top-nav .tab-nav li').removeClass('active');
+  $('.sp-top-nav .tab-nav li').eq(indexNum).addClass('active');
+  $('.sp-top-nav .content > div').removeClass('active');
+  $('.sp-top-nav .content > div').eq(indexNum).addClass('active');
+});
+$('.sp-top-nav .top-nav .item').on('click', function () {
+  $(this).toggleClass('active');
+  $(this).children().slideToggle(200);
+});
+
+//
+$('.cp-attach-content').each(function(){
+  $(this).contents().unwrap();
+});
+
+/* スクロール禁止 */
+//スクロール無効
+//preventScroll.enable();
+//スクロール有効（通常時）
+//preventScroll.disable();
+var preventScroll={
+  x:0,
+  y:0,
+  setPos:function(x,y){
+    if(x===void 0){
+      x=window.pageXOffset;
+    }
+    if(y===void 0){
+      y=window.pageYOffset;
+    }
+    this.x=x;
+    this.y=y;
+  },
+  handleEvent:function(){
+    window.scrollTo(this.x,this.y);
+  },
+  enable:function(){
+    this.setPos();
+    window.addEventListener("scroll",this);
+  },
+  disable:function(){
+    window.removeEventListener("scroll",this);
+  }
+};
+
+/**
+* jquery-match-height master by @liabru
+* http://brm.io/jquery-match-height/
+* License: MIT
+*/
+;(function (factory) {
+  'use strict';
+  var define,
+      module,
+      require;
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = factory(require('jquery'));
+  } else {
+    factory(jQuery);
+  }
+})(function ($) {
+  var _previousResizeWidth = -1,
+      _updateTimeout = -1;
+  var _parse = function (value) {
+    return parseFloat(value) || 0;
+  };
+  var _rows = function (elements) {
+    var tolerance = 1,
+        $elements = $(elements),
+        lastTop = null,
+        rows = [];
+    $elements.each(function () {
+      var $that = $(this),
+          top = $that.offset().top - _parse($that.css('margin-top')),
+          lastRow = rows.length > 0 ? rows[rows.length - 1] : null;
+      if (lastRow === null) {
+        rows.push($that);
+      } else {
+        if (Math.floor(Math.abs(lastTop - top)) <= tolerance) {
+          rows[rows.length - 1] = lastRow.add($that);
+        } else {
+          rows.push($that);
+        }
+      }
+      lastTop = top;
+    });
+    return rows;
+  };
+  var _parseOptions = function (options) {
+    var opts = {
+      byRow: true,
+      property: 'height',
+      target: null,
+      remove: false
+    };
+    if (typeof options === 'object') {
+      return $.extend(opts, options);
+    }
+    if (typeof options === 'boolean') {
+      opts.byRow = options;
+    } else if (options === 'remove') {
+      opts.remove = true;
+    }
+    return opts;
+  };
+  var matchHeight = $.fn.matchHeight = function (options) {
+    var opts = _parseOptions(options);
+    if (opts.remove) {
+      var that = this;
+      this.css(opts.property, '');
+      $.each(matchHeight._groups, function (key, group) {
+        group.elements = group.elements.not(that);
+      });
+      return this;
+    }
+    if (this.length <= 1 && !opts.target) {
+      return this;
+    }
+    matchHeight._groups.push({
+      elements: this,
+      options: opts
+    });
+    matchHeight._apply(this, opts);
+    return this;
+  };
+  matchHeight.version = 'master';
+  matchHeight._groups = [];
+  matchHeight._throttle = 80;
+  matchHeight._maintainScroll = false;
+  matchHeight._beforeUpdate = null;
+  matchHeight._afterUpdate = null;
+  matchHeight._rows = _rows;
+  matchHeight._parse = _parse;
+  matchHeight._parseOptions = _parseOptions;
+  matchHeight._apply = function (elements, options) {
+    var opts = _parseOptions(options),
+        $elements = $(elements),
+        rows = [$elements];
+    var scrollTop = $(window).scrollTop(),
+        htmlHeight = $('html').outerHeight(true);
+    var $hiddenParents = $elements.parents().filter(':hidden');
+    $hiddenParents.each(function () {
+      var $that = $(this);
+      $that.data('style-cache', $that.attr('style'));
+    });
+    $hiddenParents.css('display', 'block');
+    if (opts.byRow && !opts.target) {
+      $elements.each(function () {
+        var $that = $(this),
+            display = $that.css('display');
+        if (display !== 'inline-block' && display !== 'flex' && display !== 'inline-flex') {
+          display = 'block';
+        }
+        $that.data('style-cache', $that.attr('style'));
+        $that.css({
+          'display': display,
+          'padding-top': '0',
+          'padding-bottom': '0',
+          'margin-top': '0',
+          'margin-bottom': '0',
+          'border-top-width': '0',
+          'border-bottom-width': '0',
+          'height': '100px',
+          'overflow': 'hidden'
+        });
+      });
+      rows = _rows($elements);
+      $elements.each(function () {
+        var $that = $(this);
+        $that.attr('style', $that.data('style-cache') || '');
+      });
+    }
+    $.each(rows, function (key, row) {
+      var $row = $(row),
+          targetHeight = 0;
+      if (!opts.target) {
+        if (opts.byRow && $row.length <= 1) {
+          $row.css(opts.property, '');
+          return;
+        }
+        $row.each(function () {
+          var $that = $(this),
+              style = $that.attr('style'),
+              display = $that.css('display');
+          if (display !== 'inline-block' && display !== 'flex' && display !== 'inline-flex') {
+            display = 'block';
+          }
+          var css = {
+            'display': display
+          };
+          css[opts.property] = '';
+          $that.css(css);
+          if ($that.outerHeight(false) > targetHeight) {
+            targetHeight = $that.outerHeight(false);
+          }
+          if (style) {
+            $that.attr('style', style);
+          } else {
+            $that.css('display', '');
+          }
+        });
+      } else {
+        targetHeight = opts.target.outerHeight(false);
+      }
+      $row.each(function () {
+        var $that = $(this),
+            verticalPadding = 0;
+        if (opts.target && $that.is(opts.target)) {
+          return;
+        }
+        if ($that.css('box-sizing') !== 'border-box') {
+          verticalPadding += _parse($that.css('border-top-width')) + _parse($that.css('border-bottom-width'));
+          verticalPadding += _parse($that.css('padding-top')) + _parse($that.css('padding-bottom'));
+        }
+        $that.css(opts.property, (targetHeight - verticalPadding) + 'px');
+      });
+    });
+    $hiddenParents.each(function () {
+      var $that = $(this);
+      $that.attr('style', $that.data('style-cache') || null);
+    });
+    if (matchHeight._maintainScroll) {
+      $(window).scrollTop((scrollTop / htmlHeight) * $('html').outerHeight(true));
+    }
+    return this;
+  };
+  matchHeight._applyDataApi = function () {
+    var groups = {};
+    $('[data-match-height], [data-mh]').each(function () {
+      var $this = $(this),
+          groupId = $this.attr('data-mh') || $this.attr('data-match-height');
+      if (groupId in groups) {
+        groups[groupId] = groups[groupId].add($this);
+      } else {
+        groups[groupId] = $this;
+      }
+    });
+    $.each(groups, function () {
+      this.matchHeight(true);
+    });
+  };
+  var _update = function (event) {
+    if (matchHeight._beforeUpdate) {
+      matchHeight._beforeUpdate(event, matchHeight._groups);
+    }
+    $.each(matchHeight._groups, function () {
+      matchHeight._apply(this.elements, this.options);
+    });
+    if (matchHeight._afterUpdate) {
+      matchHeight._afterUpdate(event, matchHeight._groups);
+    }
+  };
+  matchHeight._update = function (throttle, event) {
+    if (event && event.type === 'resize') {
+      if (windowWidth === _previousResizeWidth) {
+        return;
+      }
+      _previousResizeWidth = windowWidth;
+    }
+    if (!throttle) {
+      _update(event);
+    } else if (_updateTimeout === -1) {
+      _updateTimeout = setTimeout(function () {
+        _update(event);
+        _updateTimeout = -1;
+      }, matchHeight._throttle);
+    }
+  };
+  $(matchHeight._applyDataApi);
+  $(window).bind('load', function (event) {
+    matchHeight._update(false, event);
+  });
+  $(window).bind('resize orientationchange', function (event) {
+    matchHeight._update(true, event);
+  });
+});
+
+//end of matchheight.js
